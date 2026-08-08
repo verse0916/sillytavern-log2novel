@@ -6,7 +6,7 @@ const state = { file: null, raw: '', unmatched: [], cover: null };
 
 function escapeRegExp(value) { return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 function removeTagBlocks(message, tags) {
-  for (const tag of tags) message = message.replace(new RegExp(`<${escapeRegExp(tag)}\\b[^>]*>[\\s\\S]*?<\\/${escapeRegExp(tag)}\\s*>`, 'gi'), '');
+  for (const tag of tags) message = message.replace(new RegExp(`<${escapeRegExp(tag)}(?=[\\s/>])[^>]*>[\\s\\S]*?<\\/${escapeRegExp(tag)}\\s*>`, 'gi'), '');
   return message;
 }
 function removeOrphanClosingTags(message) { return message.replace(/<\/\d+\s*>/g, ''); }
@@ -14,7 +14,7 @@ function cleanUserMessage(message) {
   return removeTagBlocks(message.trim(), USER_TAGS).replace(/^（[^）]*）\s*/, '').replace(/^\([^)]*\)\s*/, '').trim();
 }
 function cleanAiMessage(message, tag) {
-  const pattern = new RegExp(`<${escapeRegExp(tag)}\\b[^>]*>([\\s\\S]*?)<\\/${escapeRegExp(tag)}\\s*>`, 'gi');
+  const pattern = new RegExp(`<${escapeRegExp(tag)}(?=[\\s/>])[^>]*>([\\s\\S]*?)<\\/${escapeRegExp(tag)}\\s*>`, 'gi');
   const matches = [...message.matchAll(pattern)].map((match) => match[1].trim());
   return matches.length ? removeOrphanClosingTags(matches.join('\n\n')).trim() : null;
 }

@@ -21,7 +21,7 @@ def remove_tag_blocks(message: str, tags: Iterable[str]) -> str:
     """Remove complete blocks for the named tags, ignoring case."""
     for tag in tags:
         message = re.sub(
-            rf"<{re.escape(tag)}\b[^>]*>.*?</{re.escape(tag)}\s*>",
+            rf"<{re.escape(tag)}(?=[\s/>])[^>]*>.*?</{re.escape(tag)}\s*>",
             "",
             message,
             flags=re.DOTALL | re.IGNORECASE,
@@ -37,7 +37,7 @@ def remove_orphan_closing_tags(message: str) -> str:
 def clean_ai_message(message: str, tag: str) -> Optional[str]:
     """Extract every matching container block from an AI message."""
     pattern = re.compile(
-        rf"<{re.escape(tag)}\b[^>]*>(.*?)</{re.escape(tag)}\s*>",
+        rf"<{re.escape(tag)}(?=[\s/>])[^>]*>(.*?)</{re.escape(tag)}\s*>",
         flags=re.DOTALL | re.IGNORECASE,
     )
     matches = [match.strip() for match in pattern.findall(message)]
