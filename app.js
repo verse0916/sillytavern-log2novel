@@ -14,8 +14,13 @@ function cleanUserMessage(message) {
   return removeTagBlocks(message.trim(), USER_TAGS).replace(/^（[^）]*）\s*/, '').replace(/^\([^)]*\)\s*/, '').trim();
 }
 function cleanAiMessage(message, tag) {
-  const pattern = new RegExp(`<${escapeRegExp(tag)}(?=[\\s/>])[^>]*>([\\s\\S]*?)<\\/${escapeRegExp(tag)}\\s*>`, 'gi');
-  const matches = [...message.matchAll(pattern)].map((match) => match[1].trim());
+  const pattern = new RegExp(`<(/?)${escapeRegExp(tag)}(?=[\\s/>])[^>]*>`, 'gi');
+  const matches = []; let contentStart = null;
+  for (const token of message.matchAll(pattern)) {
+    if (token[1]) {
+      if (contentStart !== null) { matches.push(message.slice(contentStart, token.index).trim()); contentStart = null; }
+    } else contentStart = token.index + token[0].length;
+  }
   return matches.length ? removeOrphanClosingTags(matches.join('\n\n')).trim() : null;
 }
 

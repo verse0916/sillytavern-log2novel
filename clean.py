@@ -35,12 +35,22 @@ def remove_orphan_closing_tags(message: str) -> str:
 
 
 def clean_ai_message(message: str, tag: str) -> Optional[str]:
-    """Extract every matching container block from an AI message."""
+    """Extract blocks, pairing each closing tag with its nearest opening tag."""
     pattern = re.compile(
-        rf"<{re.escape(tag)}(?=[\s/>])[^>]*>(.*?)</{re.escape(tag)}\s*>",
+        rf"<(/?){re.escape(tag)}(?=[\s/>])[^>]*>",
         flags=re.DOTALL | re.IGNORECASE,
     )
-    matches = [match.strip() for match in pattern.findall(message)]
+    matches = []
+    content_start = None
+    for token in pattern.finditer(message):
+        if token.group(1):
+            if content_start is not None:
+                matches.append(message[content_start : token.start()].strip())
+                content_start = None
+        else:
+            # Some presets mention a bare <content> in their thinking prompt.
+            # The nearest opening tag is the actual container when this happens.
+            content_start = token.end()
     if not matches:
         return None
     return remove_orphan_closing_tags("\n\n".join(matches)).strip()
