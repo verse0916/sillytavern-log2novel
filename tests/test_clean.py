@@ -83,6 +83,26 @@ class CleanTests(unittest.TestCase):
         self.assertEqual(result, "小说正文\n\n应保留内容\n")
         self.assertNotIn("未找到", terminal)
 
+    def test_bare_tag_in_thinking_does_not_capture_prompt(self):
+        rows = [
+            json.dumps(
+                {
+                    "is_user": False,
+                    "mes": (
+                        "<thinking>输出格式：<content>\n<count>\n状态栏\n"
+                        "</thinking>\n<content>真正的小说正文</content>"
+                        "<count>123</count>"
+                    ),
+                },
+                ensure_ascii=False,
+            )
+        ]
+
+        result, terminal = self.run_process(rows)
+
+        self.assertEqual(result, "真正的小说正文\n")
+        self.assertNotIn("未找到", terminal)
+
 
 if __name__ == "__main__":
     unittest.main()
