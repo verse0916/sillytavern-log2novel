@@ -60,6 +60,29 @@ class CleanTests(unittest.TestCase):
         self.assertEqual(result, "正文\n")
         self.assertNotIn("未找到", terminal)
 
+    def test_chinese_custom_tag_and_user_wrapper(self):
+        rows = [
+            json.dumps(
+                {
+                    "is_user": False,
+                    "mes": "<thinking>忽略</thinking><丢失文稿修复>小说正文</丢失文稿修复>",
+                },
+                ensure_ascii=False,
+            ),
+            json.dumps(
+                {
+                    "is_user": True,
+                    "mes": "<本轮用户输入>包装内容</本轮用户输入>应保留内容",
+                },
+                ensure_ascii=False,
+            ),
+        ]
+
+        result, terminal = self.run_process(rows, "丢失文稿修复")
+
+        self.assertEqual(result, "小说正文\n\n应保留内容\n")
+        self.assertNotIn("未找到", terminal)
+
 
 if __name__ == "__main__":
     unittest.main()
