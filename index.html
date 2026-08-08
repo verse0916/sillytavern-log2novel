@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f6f3ed">
+  <meta name="description" content="在浏览器本地将 SillyTavern JSONL 清洗为 TXT 或 EPUB，不上传聊天记录。">
+  <title>酒馆拾页｜JSONL 转 TXT / EPUB</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="brand"><span class="brand-mark">拾</span><span>酒馆拾页</span></div>
+    <div class="hero-copy">
+      <p class="eyebrow">SILLYTAVERN LOG TO NOVEL</p>
+      <h1>把一段聊天，<br><em>收进一本书里。</em></h1>
+      <p class="intro">上传酒馆导出的 JSONL，清理多余包装，编辑正文，再下载 TXT 或 EPUB。全部处理只发生在你的浏览器里。</p>
+    </div>
+    <div class="privacy-pill"><span class="lock">●</span><strong>本地处理</strong><span>文件不会上传</span></div>
+  </header>
+
+  <main>
+    <section class="step active" id="uploadSection">
+      <div class="step-heading"><span>01</span><div><h2>选择聊天记录</h2><p>支持 SillyTavern 导出的 .jsonl 文件</p></div></div>
+      <label class="drop-zone" id="dropZone" tabindex="0">
+        <input id="fileInput" type="file" accept=".jsonl,application/jsonl">
+        <span class="drop-icon">＋</span>
+        <strong>点此选择，或拖拽文件到这里</strong>
+        <small>文件只在本机读取，不会发送到任何服务器</small>
+      </label>
+    </section>
+
+    <section class="step" id="cleanSection" hidden>
+      <div class="step-heading"><span>02</span><div><h2>检查与编辑正文</h2><p id="fileSummary"></p></div></div>
+      <div class="toolbar">
+        <label>AI 正文标签
+          <span class="tag-input"><span>&lt;</span><input id="contentTag" value="content" spellcheck="false" aria-label="AI 正文标签"><span>&gt;</span></span>
+        </label>
+        <button class="secondary" id="reparseBtn" type="button">重新解析</button>
+      </div>
+      <div id="notice" class="notice" hidden></div>
+      <div id="unmatchedPanel" class="unmatched" hidden>
+        <button id="toggleUnmatched" type="button" aria-expanded="false"><span>查看未匹配消息</span><b>⌄</b></button>
+        <div id="unmatchedList" hidden></div>
+      </div>
+      <label class="editor-label" for="editor"><span>清洗后的正文</span><span id="charCount"></span></label>
+      <textarea id="editor" rows="18" spellcheck="false"></textarea>
+    </section>
+
+    <section class="step" id="exportSection" hidden>
+      <div class="step-heading"><span>03</span><div><h2>导出你的小说</h2><p>TXT 可直接阅读，EPUB 适合导入阅读器</p></div></div>
+      <div class="export-grid">
+        <div class="export-card txt-card">
+          <div><span class="filetype">TXT</span><h3>纯文本</h3><p>保留当前编辑结果，通用又轻便。</p></div>
+          <button class="primary" id="downloadTxt" type="button">下载 TXT</button>
+        </div>
+        <div class="export-card epub-card">
+          <div><span class="filetype">EPUB</span><h3>电子书</h3><p>自动生成章节、目录与阅读排版。</p></div>
+          <button class="primary" id="showEpub" type="button">设置并生成</button>
+        </div>
+      </div>
+      <div id="epubSettings" class="epub-settings" hidden>
+        <div class="settings-grid">
+          <label>书名<input id="bookTitle" placeholder="例如：未寄出的长信"></label>
+          <label>作者<input id="bookAuthor" placeholder="选填"></label>
+          <label class="wide">章节识别
+            <select id="chapterMode">
+              <option value="common">常见格式（Chapter 1 / 第一章 / 第1章）</option>
+              <option value="line">每个非空短行作为章节</option>
+              <option value="custom">自定义正则表达式</option>
+            </select>
+          </label>
+          <label class="wide" id="regexField" hidden>自定义正则<input id="chapterRegex" placeholder="例如：^第[一二三四五六七八九十百0-9]+回.*$"></label>
+          <label class="cover-field">可选封面
+            <input id="coverInput" type="file" accept="image/jpeg,image/png">
+            <span id="coverName">选择 JPG 或 PNG</span>
+          </label>
+        </div>
+        <div class="chapter-preview"><span id="chapterSummary">将按常见章节标题自动识别</span><button id="previewChapters" class="text-btn" type="button">预览章节</button></div>
+        <ol id="chapterList" hidden></ol>
+        <button class="primary generate" id="generateEpub" type="button">生成并下载 EPUB</button>
+      </div>
+    </section>
+  </main>
+  <footer><span>酒馆拾页</span><span>你的故事，只属于你。</span></footer>
+  <script src="app.js"></script>
+</body>
+</html>
